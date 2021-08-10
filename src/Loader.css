@@ -1,9 +1,13 @@
 .lds-dual-ring-container {
     padding: 10px;
+    padding-right: 20px;
+    padding-bottom: 20px;
     position: absolute;
     z-index: 2;
     top: 2%;
     right: 5%;
+    background-color: rgba(255, 255, 255, 128);
+    border-radius: 20px;
 }
 
 .lds-dual-ring {

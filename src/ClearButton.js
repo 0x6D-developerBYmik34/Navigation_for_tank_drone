@@ -1,17 +1,29 @@
+import React, { useState } from 'react';
+import { useCallback } from 'react';
 import './ClearButton.css'
 
-const ClearButton = props => {
 
-    const isAnimate = props.animate ?? true;
+const animationDelay = 700 - 22;
 
-    const handler = isAnimate ? e => {
-        e.currentTarget.classList.add('animate-deletion');
-        console.log(e.currentTarget.style.display);
-        e.currentTarget.onanimationend = props.onClickClear;
-    } : props.onClickClear;
+const ClearButton = ({onClickClear, setIsActive}) => {
+    const [isAnimate, setAnimate] = useState(false)
 
-    return <button className="clear-button" 
-    onClick={handler}>Отчистить маршрут</button>;
+    const onClearAll = useCallback(() => {
+      setAnimate(true)
+
+      onClickClear()
+
+      setTimeout(() => {
+        setAnimate(false)
+        setIsActive(false)
+      }, animationDelay)
+    }, [onClickClear, setIsActive]);
+
+    return (
+      <button className={isAnimate ? 'animate-deletion clear-button' : 'clear-button'} onClick={onClearAll}>
+        Отчистить маршрут
+      </button>
+    );
 }
 
 export default ClearButton;
