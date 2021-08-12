@@ -21,7 +21,7 @@ const ClearButton = ({onClickClear, setIsActive}) => {
 
     return (
       <button className={isAnimate ? 'animate-deletion clear-button' : 'clear-button'} onClick={onClearAll}>
-        Отчистить маршрут
+        Очистить маршрут
       </button>
     );
 }

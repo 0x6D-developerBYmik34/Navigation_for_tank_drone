@@ -1,14 +1,14 @@
 
-const Menu = props => 
+const Menu = ({onChangeTypeLine, updateLinesHandle, startResciveHandle}) => 
 <div className="menu">
 	<fieldset>
         <legend>Type for line</legend>
 		<label>
-            <input onChange={props.onChangeTypeLine} type="radio" name="rtoggle" value="{1}" defaultChecked="true"/>
+            <input onChange={onChangeTypeLine} type="radio" name="rtoggle" value="{1}" defaultChecked="true"/>
             Use Navigation
         </label>
 		<label>
-            <input onChange={props.onChangeTypeLine} type="radio" name="rtoggle" value=""/>
+            <input onChange={onChangeTypeLine} type="radio" name="rtoggle" value=""/>
             Direct line
         </label>
     </fieldset>
@@ -19,8 +19,8 @@ const Menu = props =>
 	</fieldset>
 	<fieldset>
         <legend>Activitis</legend>
-        <button onClick={props.updateLinesHandle}>Send(Update lines)</button>
-        <button onClick={props.startResciveHandle}>Start(Send to tank and start drive)</button>
+        <button onClick={updateLinesHandle}>Send(Update lines)</button>
+        <button onClick={startResciveHandle}>Start(Send to tank and start drive)</button>
     </fieldset>
 </div>;
 

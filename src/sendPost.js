@@ -1,11 +1,10 @@
-import { toGeojson } from "./util";
 import { tank_url } from "./config"
 
-export const sendPost = async route => {
+export const sendPost = async geojson => {
     try {
       const response = await fetch(tank_url, {
         method: 'POST',
-        body: JSON.stringify(toGeojson(route)),
+        body: JSON.stringify(geojson),
         headers: {
             'Content-Type': 'application/json',
          } });

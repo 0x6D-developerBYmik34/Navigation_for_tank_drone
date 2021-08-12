@@ -5,14 +5,17 @@ import Menu from "./Menu";
 import Info from "./Info";
 import Loader from "./Loader";
 import ClearButton from "./ClearButton";
-import { initSourceForMap, toGeojson } from "./util";
-import { sendPost } from "./sendPost";
+import { initSourceForMap } from "./util";
 import { source_id } from "./config";
 import RouteBuildingArray from "./RouteBuildingArray";
+import { useEffect } from "react";
+import { connect } from "mqtt";
+import { toGeojson } from "./util";
 
 
 const HookApp = () => {
     const rbArray = useRef(null);
+    const clientPublisher = useRef(null);
 
     const [info, setInfo] = useState('Get started!');
     const [clearButVisible, setClVisible] = useState(false);
@@ -22,6 +25,19 @@ const HookApp = () => {
     rbArray.current.isRequestRouteFromOut = !!(e.currentTarget.value);
 
     const onClickClear = () => rbArray.current.clearAll()
+
+    useEffect(() => { //ws://0.0.0.0:1884
+      clientPublisher.current = connect('ws://localhost:1883', {
+        username: 'reactjs',
+        password: '1884',
+      }); //tcp://192.168.0.106:1883
+      clientPublisher.current.on('connect', () => {
+        clientPublisher.current.publish('tanknavigation', 'i tut');
+      });
+      clientPublisher.current.on('error', err => {
+        console.log(err);
+      });
+    }, []);
     
     const initMapHandle = map => {
       console.log('initMapHandle()');
@@ -60,7 +76,11 @@ const HookApp = () => {
         <MyMap initMapHandle={initMapHandle}/>
         <Info>{info}</Info>
         <Menu updateLinesHandle={() => rbArray.current.requestAndDrawRoute()} 
-        startResciveHandle={() => sendPost(rbArray.current)}
+        startResciveHandle={() => {
+          // console.log('spam');
+          const outString = JSON.stringify(toGeojson(rbArray.current.route));
+          clientPublisher.current.publish('tanknavigation', outString);
+        }}
         onChangeTypeLine={onChangeTypeLine}/>
         {clearButVisible && <ClearButton onClickClear={onClickClear} setIsActive={setClVisible}/> }
         {loaderVisible && <Loader/> }
