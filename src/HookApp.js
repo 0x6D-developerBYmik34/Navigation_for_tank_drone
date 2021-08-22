@@ -16,6 +16,7 @@ import { toGeojson } from "./util";
 const HookApp = () => {
     const rbArray = useRef(null);
     const clientPublisher = useRef(null);
+    const locationMarker = useRef(null);
 
     const [info, setInfo] = useState('Get started!');
     const [clearButVisible, setClVisible] = useState(false);
@@ -27,16 +28,21 @@ const HookApp = () => {
     const onClickClear = () => rbArray.current.clearAll()
 
     useEffect(() => { //ws://0.0.0.0:1884
-      clientPublisher.current = connect('ws://localhost:1883', {
+
+      clientPublisher.current = connect('ws://176.106.133.55:9008', {
         username: 'reactjs',
         password: '1884',
       }); //tcp://192.168.0.106:1883
+
       clientPublisher.current.on('connect', () => {
         clientPublisher.current.publish('tanknavigation', 'i tut');
+        clientPublisher.current.subscribe('tanknavigationclient', console.log);
       });
+
       clientPublisher.current.on('error', err => {
         console.log(err);
       });
+
     }, []);
     
     const initMapHandle = map => {
@@ -47,6 +53,8 @@ const HookApp = () => {
       map.doubleClickZoom.disable(); // убрать приближение при двойном нажатии
       map.touchZoomRotate.disableRotation(); // отключить вращение карты
 
+      locationMarker.current = new mapboxgl.Marker()
+
       rbArray.current = new RouteBuildingArray(route => 
         map.getSource(source_id).setData(toGeojson(route))
       );
@@ -54,6 +62,23 @@ const HookApp = () => {
       rbArray.current.onbecamenoempty = () => setClVisible(true);
       rbArray.current.onstartrequestroute = () => setLoaderVisible(true);
       rbArray.current.onfinnalyrequestroute = () => setLoaderVisible(false);
+
+      clientPublisher.current.on('message', (t, buff, packet) => {
+        const str = buff.toString()
+
+        try {
+          const {lng, lat} = JSON.parse(str);
+          locationMarker.current.setLngLat([lng, lat]).addTo(map)
+          console.log("added");
+        } catch (err) {
+          if (err.name === "SyntaxError") {
+            console.log(str);
+            return;
+          } else {
+            throw err; // проброс (*)
+          }
+        }
+      });
   
       map.on('mousemove', e => {
         const {lat, lng} = e.lngLat.wrap()
@@ -77,7 +102,7 @@ const HookApp = () => {
         <Info>{info}</Info>
         <Menu updateLinesHandle={() => rbArray.current.requestAndDrawRoute()} 
         startResciveHandle={() => {
-          // console.log('spam');
+          console.log('отправленно');
           const outString = JSON.stringify(toGeojson(rbArray.current.route));
           clientPublisher.current.publish('tanknavigation', outString);
         }}
