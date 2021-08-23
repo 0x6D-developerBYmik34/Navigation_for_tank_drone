@@ -35,8 +35,8 @@ const HookApp = () => {
       }); //tcp://192.168.0.106:1883
 
       clientPublisher.current.on('connect', () => {
-        clientPublisher.current.publish('tanknavigation', 'i tut');
-        clientPublisher.current.subscribe('tanknavigationclient', console.log);
+        clientPublisher.current.publish('tank', 'i tut', {'qos': 1});
+        clientPublisher.current.subscribe('tanknavigationclient', {'qos': 1}, console.log);
       });
 
       clientPublisher.current.on('error', err => {
@@ -104,7 +104,7 @@ const HookApp = () => {
         startResciveHandle={() => {
           console.log('отправленно');
           const outString = JSON.stringify(toGeojson(rbArray.current.route));
-          clientPublisher.current.publish('tanknavigation', outString);
+          clientPublisher.current.publish("tank", outString, {'qos': 1});
         }}
         onChangeTypeLine={onChangeTypeLine}/>
         {clearButVisible && <ClearButton onClickClear={onClickClear} setIsActive={setClVisible}/> }
